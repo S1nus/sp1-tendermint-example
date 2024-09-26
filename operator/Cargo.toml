@@ -15,6 +15,14 @@ path = "bin/fixture.rs"
 name = "vkey"
 path = "bin/vkey.rs"
 
+[[bin]]
+name = "tia_finder"
+path = "bin/tia_finder.rs"
+
+[[bin]]
+name = "json_pruner"
+path = "bin/json_pruner.rs"
+
 [dependencies]
 alloy = { git = "https://github.com/alloy-rs/alloy", features = ["sol-types"] }
 sp1-sdk = { git = "https://github.com/succinctlabs/sp1.git" }
