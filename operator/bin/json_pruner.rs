@@ -22,6 +22,7 @@ async fn main() -> anyhow::Result<()> {
         }
     }
     files.sort_by(|a, b| a.parse::<u32>().unwrap().cmp(&b.parse::<u32>().unwrap()));
+    let mut dels: Vec<String> = vec![];
     for i in 0..files.len() {
         let file = fs::File::open(format!("{}.json", files[i])).unwrap();
         let reader = std::io::BufReader::new(file);
@@ -39,7 +40,7 @@ async fn main() -> anyhow::Result<()> {
                 trusting_period: Duration::from_secs(14 * 24 * 60 * 60),
                 clock_drift: Default::default(),
             };
-            let verify_time = first_block.time() + Duration::from_secs(20);
+            let verify_time = second_block.time() + Duration::from_secs(20);
             let verdict = vp.verify_update_header(
                 second_block.as_untrusted_state(),
                 first_block.as_trusted_state(),
@@ -48,21 +49,26 @@ async fn main() -> anyhow::Result<()> {
             );
             match verdict {
                 Verdict::Success => {
-                    println!("this ok");
                     num_dels += 1;
+                    dels.push(format!("{}.json", files[j]));
                 }
                 _ => {
                     closest_reject_height = Some(second_block.height().value());
-                    println!(
+                    /*println!(
                         "closest reject height for {} is {}",
                         first_block.height(),
                         second_block.height()
-                    );
+                    );*/
+                    num_dels -= 1;
+                    dels.pop();
                     break;
                 }
             }
         }
-        println!("height {} has {} dels", first_block.height(), num_dels);
+    }
+    println!("files to delete:");
+    for f in dels {
+        print!("{} ", f);
     }
     /*for (i, f) in files.iter().enumerate() {
         let file = fs::File::open(format!("{}.json", f)).unwrap();
